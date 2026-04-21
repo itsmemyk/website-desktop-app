@@ -2,6 +2,8 @@
 
 Electron-based desktop wrapper for [google.com](https://google.com).
 
+![App Screenshot](assets/screenshot.png)
+
 ---
 
 ## Building on Windows (Step-by-Step from Scratch)
@@ -75,7 +77,7 @@ npm start
 
 ### Step 6: Replace the App Icon (Optional but Recommended)
 
-Replace `icon.png` in the project folder with your actual logo:
+Replace `assets/icon.png` in the project folder with your actual logo:
 
 - Must be at least **256x256 pixels**
 - PNG format
@@ -83,7 +85,7 @@ Replace `icon.png` in the project folder with your actual logo:
 
 ```json
 "win": {
-  "icon": "icon.ico"
+  "icon": "assets/icon.ico"
 }
 ```
 
@@ -99,7 +101,7 @@ This takes several minutes on the first run. When finished, the output is in the
 dist/
 ├── Website Desktop App Setup 1.0.0.exe    ← NSIS installer (for end users)
 ├── Website Desktop App 1.0.0.exe          ← Portable executable (no install needed)
-└── win-unpacked/                     ← Unpacked app directory
+└── win-unpacked/                           ← Unpacked app directory
 ```
 
 ### Step 8: Distribute
@@ -109,17 +111,217 @@ dist/
 
 ---
 
-## Troubleshooting (Windows)
+## Building on macOS (Step-by-Step from Scratch)
 
-| Problem | Solution |
-|---------|----------|
-| `node` or `npm` not recognized | Restart your PC after installing Node.js |
-| `npm install` fails with permission errors | Run Command Prompt as Administrator (right-click → "Run as administrator") |
-| `npm install` fails with network errors | Check internet connection; if behind a proxy, run `npm config set proxy http://your-proxy:port` |
-| `npm run build` fails | Make sure `npm install` completed without errors first |
-| Build takes very long | First build downloads Electron binaries (~150 MB). Subsequent builds are faster. |
-| App shows white screen | Check internet connection — the app loads a website and needs network access |
-| Antivirus blocks the `.exe` | This is common with unsigned Electron apps. Add an exception or sign the app with a code signing certificate. |
+> **Note:** macOS builds must be run on a Mac. You cannot cross-compile a `.dmg` from Windows or Linux.
+
+### Step 1: Install Node.js
+
+**Option A — Official installer (recommended for beginners):**
+
+1. Go to https://nodejs.org and download the **LTS** `.pkg` installer.
+2. Double-click the downloaded file and follow the prompts.
+3. Open **Terminal** (Applications → Utilities → Terminal) and verify:
+
+```bash
+node --version
+npm --version
+```
+
+**Option B — Homebrew (recommended for developers):**
+
+```bash
+# Install Homebrew if not already installed
+/bin/bash -c "$(curl -fsSL https://brew.sh/install.sh)"
+
+# Install Node.js LTS
+brew install node@22
+```
+
+### Step 2: Clone or Copy the Project
+
+```bash
+cd ~/Desktop
+# If you have the folder as a zip, extract it there.
+# Otherwise copy the website-desktop-app folder here.
+cd website-desktop-app
+```
+
+**Important:** Do NOT copy the `node_modules` or `dist` folders.
+
+### Step 3: Install Dependencies
+
+```bash
+npm install
+```
+
+### Step 4: Test the App (Optional)
+
+```bash
+# Development mode (DevTools enabled)
+npm run dev
+
+# Production mode (DevTools blocked)
+npm start
+```
+
+### Step 5: Replace the App Icon (Optional but Recommended)
+
+Replace `assets/icon.png` with your logo (min **256×256 PNG**).
+
+For macOS, you can also provide an `.icns` file for best results. Convert using Preview or an online tool, then update `package.json`:
+
+```json
+"mac": {
+  "icon": "assets/icon.icns"
+}
+```
+
+### Step 6: Build the macOS App
+
+```bash
+npm run build:mac
+```
+
+Output in `dist/`:
+
+```
+dist/
+├── Website Desktop App-1.0.0.dmg        ← DMG installer (drag-to-Applications)
+├── Website Desktop App-1.0.0-mac.zip    ← Zipped .app bundle
+└── mac/
+    └── Website Desktop App.app          ← Unpacked app bundle
+```
+
+### Step 7: Distribute
+
+- **For most users:** Share the `.dmg` file. Users open it, drag the app to `/Applications`, and launch it from there.
+- **Note on Gatekeeper:** Unsigned apps will show a warning on first launch. Users can right-click → **Open** to bypass it, or you can sign the app with an Apple Developer certificate.
+
+---
+
+## Building on Linux (Step-by-Step from Scratch)
+
+### Step 1: Install Node.js
+
+**Ubuntu / Debian:**
+
+```bash
+# Install Node.js LTS via NodeSource
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Verify
+node --version
+npm --version
+```
+
+**Fedora / RHEL / Rocky:**
+
+```bash
+sudo dnf install nodejs npm
+```
+
+**Arch Linux:**
+
+```bash
+sudo pacman -S nodejs npm
+```
+
+**Any distro (via nvm — recommended):**
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc   # or ~/.zshrc
+nvm install --lts
+```
+
+### Step 2: Install Build Dependencies
+
+Electron requires some native build tools on Linux:
+
+```bash
+# Ubuntu / Debian
+sudo apt-get install -y build-essential libssl-dev
+
+# Fedora
+sudo dnf groupinstall "Development Tools"
+```
+
+### Step 3: Clone or Copy the Project
+
+```bash
+cd ~/Desktop
+# Copy or extract the website-desktop-app folder here
+cd website-desktop-app
+```
+
+**Important:** Do NOT copy the `node_modules` or `dist` folders.
+
+### Step 4: Install Dependencies
+
+```bash
+npm install
+```
+
+### Step 5: Test the App (Optional)
+
+```bash
+# Development mode (DevTools enabled)
+npm run dev
+
+# Production mode (DevTools blocked)
+npm start
+```
+
+### Step 6: Replace the App Icon (Optional but Recommended)
+
+Replace `assets/icon.png` with your logo (min **256×256 PNG**).
+
+For Linux, a `.png` is used directly — no conversion needed.
+
+### Step 7: Build the Linux Package
+
+```bash
+npm run build:linux
+```
+
+Output in `dist/`:
+
+```
+dist/
+├── Website Desktop App-1.0.0.AppImage   ← Portable, runs on any distro
+├── website-desktop-app_1.0.0_amd64.deb  ← Debian/Ubuntu installer
+└── linux-unpacked/                       ← Unpacked app directory
+```
+
+### Step 8: Distribute
+
+- **AppImage** — portable, no installation needed. Make it executable and run:
+  ```bash
+  chmod +x "Website Desktop App-1.0.0.AppImage"
+  ./"Website Desktop App-1.0.0.AppImage"
+  ```
+- **`.deb`** — install on Debian/Ubuntu:
+  ```bash
+  sudo dpkg -i website-desktop-app_1.0.0_amd64.deb
+  ```
+
+---
+
+## Troubleshooting
+
+| Problem | Platform | Solution |
+|---------|----------|----------|
+| `node` or `npm` not recognized | Windows | Restart your PC after installing Node.js |
+| `npm install` fails with permission errors | Windows | Run Command Prompt as Administrator |
+| `npm install` fails with network errors | All | Check internet connection; if behind a proxy: `npm config set proxy http://your-proxy:port` |
+| `npm run build` fails | All | Make sure `npm install` completed without errors first |
+| Build takes very long | All | First build downloads Electron binaries (~150 MB). Subsequent builds are faster. |
+| App shows white screen | All | Check internet connection — the app loads a website and needs network access |
+| Antivirus blocks the `.exe` | Windows | Common with unsigned Electron apps. Add an exception or sign with a code signing certificate. |
+| Gatekeeper blocks the app | macOS | Right-click → **Open** to bypass, or sign with an Apple Developer certificate |
+| App won't launch (missing libs) | Linux | Install `libgconf-2-4`, `libxss1`, `libnss3` if missing: `sudo apt-get install -y libgconf-2-4 libxss1 libnss3` |
 
 ---
 
@@ -131,17 +333,20 @@ dist/
 | `npm run dev` | Run in development mode (DevTools enabled) |
 | `npm start` | Run in production mode (DevTools blocked) |
 | `npm run build` | Build Windows installer + portable `.exe` → `dist/` |
+| `npm run build:mac` | Build macOS `.dmg` → `dist/` (must run on macOS) |
+| `npm run build:linux` | Build Linux AppImage + `.deb` → `dist/` |
 | `npm run build:dir` | Build unpacked directory only (faster, for testing) |
 
 ---
 
 ## Configuration
 
-Edit the `CONFIG` object at the top of `main.js`:
+Edit `config.json` at the project root:
 
 | Key           | Default | Description                              |
 |---------------|---------|------------------------------------------|
 | `url`         | `https://google.com` | The URL loaded on startup |
+| `appName`     | hostname of `url` | Window title and app name |
 | `kiosk`       | `false` | Set `true` for fullscreen kiosk mode     |
 | `windowWidth` | `1280`  | Default window width in pixels           |
 | `windowHeight`| `800`   | Default window height in pixels          |
@@ -159,7 +364,6 @@ Edit the `CONFIG` object at the top of `main.js`:
 | **Keyboard shortcuts blocked** | `before-input-event` blocks F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+L, Ctrl+R, F5, etc. |
 | **Context menu disabled** | Preload script prevents right-click context menu |
 | **Navigation restricted** | `will-navigate` and `setWindowOpenHandler` block navigation outside the allowed origin; external links open in the system default browser |
-| **Network requests filtered** | `session.webRequest.onBeforeRequest` blocks requests to non-allowed domains |
 | **New windows blocked** | All `window.open()` calls are denied; allowed URLs load in the same window |
 | **Webview tag disabled** | `webviewTag: false` prevents `<webview>` element creation |
 | **Context isolation** | `contextIsolation: true` — renderer cannot access Node.js APIs |
@@ -217,19 +421,3 @@ Login sessions (cookies, localStorage, IndexedDB) are automatically persisted by
 - **macOS:** `~/Library/Application Support/Website Desktop App/`
 
 Uninstalling the app via the NSIS installer does **not** delete this data (configured via `deleteAppDataOnUninstall: false`), so users stay logged in across reinstalls.
-
----
-
-## Building for Other Platforms
-
-The default config builds for Windows x64. To build for other targets:
-
-```bash
-# macOS (must run on macOS)
-npx electron-builder --mac
-
-# Linux
-npx electron-builder --linux
-```
-
-Update the `build` section in `package.json` to add platform-specific config as needed.
