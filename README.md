@@ -1,8 +1,83 @@
 # Website to Desktop App
 
-Electron-based desktop wrapper for [google.com](https://google.com).
+> Turn any website into a secure, standalone desktop application in minutes — powered by Electron.
 
 ![App Screenshot](assets/screenshot.png)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](#building-on-windows-step-by-step-from-scratch)
+[![Electron](https://img.shields.io/badge/Electron-33-47848F?logo=electron&logoColor=white)](https://www.electronjs.org)
+[![Node](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+
+---
+
+## What is this?
+
+**Website to Desktop App** wraps any URL into a native desktop window — no browser chrome, no address bar, no way for users to navigate away. Drop in a URL, build, and distribute a polished `.exe`, `.dmg`, or `.AppImage`.
+
+Perfect for:
+- Internal tools and dashboards that need a desktop presence
+- Kiosk / display mode applications
+- Locking users to a single web app (ERP, CRM, SaaS)
+- Giving a web app a native feel without rewriting it
+
+---
+
+## Features
+
+- **One config file** — change the URL, app name, and window size in `config.json`, done
+- **Cross-platform builds** — Windows (NSIS installer + portable), macOS (DMG), Linux (AppImage + DEB)
+- **Security hardened** — DevTools blocked, context menu disabled, navigation restricted to the configured origin, sandbox enabled
+- **Persistent sessions** — cookies and localStorage survive app restarts and reinstalls
+- **Kiosk mode** — fullscreen lock with a single config flag
+- **Offline error screen** — built-in loading/error page shown when the network is unavailable
+- **Single instance** — prevents multiple windows from opening at the same time
+
+---
+
+## Quick Start
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/your-username/website-desktop-app.git
+cd website-desktop-app
+
+# 2. Edit config.json — set your URL and app name
+# 3. Install dependencies
+npm install
+
+# 4. Run in development mode
+npm run dev
+
+# 5. Build for your platform
+npm run build        # Windows
+npm run build:mac    # macOS
+npm run build:linux  # Linux
+```
+
+---
+
+## Configuration
+
+Edit `config.json` at the project root — no code changes needed:
+
+```json
+{
+  "url": "https://your-website.com",
+  "appName": "My App",
+  "kiosk": false,
+  "windowWidth": 1280,
+  "windowHeight": 800
+}
+```
+
+| Key           | Default | Description |
+|---------------|---------|-------------|
+| `url`         | `https://google.com` | The website to load on startup |
+| `appName`     | hostname of `url` | Window title and OS app name |
+| `kiosk`       | `false` | `true` for fullscreen kiosk mode |
+| `windowWidth` | `1280`  | Default window width in pixels |
+| `windowHeight`| `800`   | Default window height in pixels |
 
 ---
 
@@ -278,8 +353,6 @@ npm start
 
 Replace `assets/icon.png` with your logo (min **256×256 PNG**).
 
-For Linux, a `.png` is used directly — no conversion needed.
-
 ### Step 7: Build the Linux Package
 
 ```bash
@@ -295,17 +368,22 @@ dist/
 └── linux-unpacked/                       ← Unpacked app directory
 ```
 
-### Step 8: Distribute
+### Step 8: Run / Distribute
 
-- **AppImage** — portable, no installation needed. Make it executable and run:
-  ```bash
-  chmod +x "Website Desktop App-1.0.0.AppImage"
-  ./"Website Desktop App-1.0.0.AppImage"
-  ```
-- **`.deb`** — install on Debian/Ubuntu:
-  ```bash
-  sudo dpkg -i website-desktop-app_1.0.0_amd64.deb
-  ```
+**AppImage** — portable, no installation needed:
+
+```bash
+chmod +x "Website Desktop App-1.0.0.AppImage"
+./"Website Desktop App-1.0.0.AppImage"
+```
+
+**`.deb`** — install on Debian/Ubuntu:
+
+```bash
+sudo dpkg -i website-desktop-app_1.0.0_amd64.deb
+# Then launch from the app menu or:
+website-desktop-app
+```
 
 ---
 
@@ -321,11 +399,11 @@ dist/
 | App shows white screen | All | Check internet connection — the app loads a website and needs network access |
 | Antivirus blocks the `.exe` | Windows | Common with unsigned Electron apps. Add an exception or sign with a code signing certificate. |
 | Gatekeeper blocks the app | macOS | Right-click → **Open** to bypass, or sign with an Apple Developer certificate |
-| App won't launch (missing libs) | Linux | Install `libgconf-2-4`, `libxss1`, `libnss3` if missing: `sudo apt-get install -y libgconf-2-4 libxss1 libnss3` |
+| App won't launch (missing libs) | Linux | Run: `sudo apt-get install -y libgconf-2-4 libxss1 libnss3` |
 
 ---
 
-## Quick Reference (All Platforms)
+## Quick Reference
 
 | Command | What it does |
 |---------|-------------|
@@ -339,23 +417,9 @@ dist/
 
 ---
 
-## Configuration
-
-Edit `config.json` at the project root:
-
-| Key           | Default | Description                              |
-|---------------|---------|------------------------------------------|
-| `url`         | `https://google.com` | The URL loaded on startup |
-| `appName`     | hostname of `url` | Window title and app name |
-| `kiosk`       | `false` | Set `true` for fullscreen kiosk mode     |
-| `windowWidth` | `1280`  | Default window width in pixels           |
-| `windowHeight`| `800`   | Default window height in pixels          |
-
----
-
 ## Security Notes
 
-### What IS protected (real hardening)
+### What IS protected
 
 | Protection | How |
 |---|---|
@@ -373,25 +437,14 @@ Edit `config.json` at the project root:
 | **Drag-and-drop blocked** | Preload blocks file drag-and-drop into the window |
 | **Permission handler** | Only clipboard and notifications are allowed; camera, mic, etc. are denied |
 
-### What is UI hiding only (NOT real protection)
+### Known limitations
 
-| Measure | Reality |
-|---|---|
-| **Keyboard shortcut blocking** | A determined user can patch the app binary or use external tools to send key events |
-| **Context menu blocking** | Can be bypassed by modifying the preload script in an unpacked app |
-| **Network filtering** | Only filters within the app; system-level tools (Wireshark, Fiddler) can still see traffic |
+> **The URL cannot be made truly secret in an Electron app.** A motivated technical user can find it by:
+> - Unpacking the ASAR archive: `npx asar extract app.asar ./extracted`
+> - Inspecting network traffic (DNS / TLS SNI)
+> - Reading process memory or command-line arguments
 
-### Limitations of Electron-based URL hiding
-
-> **The URL cannot be made truly secret in an Electron app.** These are the known ways a user can discover it:
-
-1. **Unpacking the ASAR archive** — `npx asar extract app.asar ./extracted` reveals `main.js` with the URL in plain text. ASAR is not encryption; it is an archive format.
-2. **Process inspection** — On Windows, `wmic` / Process Explorer can show command-line arguments. On Linux, `/proc/<pid>/cmdline` may reveal it.
-3. **Network traffic** — DNS queries and TLS SNI expose the hostname to anyone on the same network or with local capture tools.
-4. **Memory inspection** — Debuggers or memory dump tools can find the URL string in process memory.
-5. **Electron flags** — Starting the app with `--remote-debugging-port=9222` opens a Chrome DevTools debug port.
-
-**Bottom line:** The protections hide the URL from casual users who simply use the app. They do not protect against a motivated technical user. This is a fundamental limitation of client-side applications, not a flaw in the implementation.
+The protections are effective against casual users. They are not a substitute for server-side authentication.
 
 ---
 
@@ -404,7 +457,8 @@ website-desktop-app/
 │   ├── preload.js       # Preload script — context menu & drag-drop blocking
 │   └── loading.html     # Loading splash / offline error screen
 ├── assets/
-│   └── icon.png         # App icon (replace with real icon, min 256×256 PNG)
+│   ├── icon.png         # App icon (replace with real icon, min 256×256 PNG)
+│   └── screenshot.png   # README screenshot
 ├── config.json          # Runtime configuration (url, appName, etc.)
 ├── package.json         # Dependencies, scripts, build config
 └── README.md            # This file
@@ -421,3 +475,9 @@ Login sessions (cookies, localStorage, IndexedDB) are automatically persisted by
 - **macOS:** `~/Library/Application Support/Website Desktop App/`
 
 Uninstalling the app via the NSIS installer does **not** delete this data (configured via `deleteAppDataOnUninstall: false`), so users stay logged in across reinstalls.
+
+---
+
+## License
+
+[MIT](LICENSE)

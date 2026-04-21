@@ -4,8 +4,20 @@
   "description": "Electron-based desktop wrapper that turns any website into a secure, standalone desktop application with navigation restrictions, DevTools blocking, and persistent login sessions.",
   "main": "src/main.js",
   "author": "",
-  "license": "UNLICENSED",
-  "private": true,
+  "license": "MIT",
+  "keywords": [
+    "electron",
+    "desktop-app",
+    "website-wrapper",
+    "electron-app",
+    "kiosk",
+    "cross-platform",
+    "nodejs",
+    "website-to-desktop",
+    "web-wrapper",
+    "electron-boilerplate"
+  ],
+  "private": false,
   "scripts": {
     "start": "electron .",
     "dev": "cross-env NODE_ENV=development electron .",
