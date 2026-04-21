@@ -1,0 +1,7 @@
+{
+  "url": "https://google.com",
+  "appName": "Google",
+  "kiosk": false,
+  "windowWidth": 1280,
+  "windowHeight": 800
+}

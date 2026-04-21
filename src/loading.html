@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+  <title>Loading...</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      -webkit-app-region: drag;
+      user-select: none;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 1px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+    }
+
+    .status {
+      font-size: 0.9rem;
+      color: #a0a0b0;
+      margin-bottom: 2rem;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto;
+      border: 3px solid rgba(102, 126, 234, 0.2);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-container {
+      display: none;
+    }
+
+    .error-container.visible {
+      display: block;
+    }
+
+    .loading-container.hidden {
+      display: none;
+    }
+
+    .error-icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 1rem;
+      background: rgba(234, 102, 102, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .error-message {
+      font-size: 0.85rem;
+      color: #a0a0b0;
+      margin-bottom: 1.5rem;
+      max-width: 400px;
+      line-height: 1.5;
+    }
+
+    .retry-btn {
+      -webkit-app-region: no-drag;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 0.7rem 2rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+
+    .retry-btn:hover {
+      opacity: 0.9;
+    }
+
+    .retry-btn:active {
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo" id="logo"></div>
+    <h1 id="app-title"></h1>
+
+    <div class="loading-container" id="loading">
+      <p class="status">Loading application...</p>
+      <div class="spinner"></div>
+    </div>
+
+    <div class="error-container" id="error">
+      <div class="error-icon">!</div>
+      <p class="status" style="color: #ea6666;">Connection Failed</p>
+      <p class="error-message" id="error-message">
+        Unable to connect to the server. Please check your internet connection and try again.
+      </p>
+      <button class="retry-btn" id="retry-btn">Retry</button>
+    </div>
+  </div>
+
+  <script>
+    // Check if we're in error state (passed via query params)
+    const params = new URLSearchParams(window.location.search);
+    const appName = params.get("appName") || "App";
+    const initials = appName.split(/\s+/).map(w => w[0]).join("").toUpperCase().slice(0, 2);
+    document.getElementById("logo").textContent = initials;
+    document.getElementById("app-title").textContent = appName;
+    document.title = appName;
+
+    const isError = params.get("error") === "true";
+    const errorMsg = params.get("message");
+
+    if (isError) {
+      document.getElementById("loading").classList.add("hidden");
+      document.getElementById("error").classList.add("visible");
+      if (errorMsg) {
+        document.getElementById("error-message").textContent =
+          "Unable to connect: " + errorMsg + ". Please check your internet connection and try again.";
+      }
+    }
+
+    // Retry button — reload the page, which signals main process to retry
+    document.getElementById("retry-btn").addEventListener("click", () => {
+      document.getElementById("error").classList.remove("visible");
+      document.getElementById("loading").classList.remove("hidden");
+      // Navigate to clean loading page; main process will detect and reload the real URL
+      setTimeout(() => {
+        window.location.search = "";
+      }, 400);
+    });
+  </script>
+</body>
+</html>
